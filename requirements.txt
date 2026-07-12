@@ -5,4 +5,6 @@ matplotlib
 seaborn
 jupyter
 xgboost
+catboost
+lightgbm
 optuna
