@@ -52,14 +52,14 @@ Four notebooks, each with one job — no notebook does EDA *and* modeling *and* 
 
 ```mermaid
 flowchart LR
-    A["EDA\nClassificacao_EDA.ipynb"] --> B["02 · Baseline\nsplit + naive vs. LogReg"]
+    A["01 · EDA\n01_Classificacao_EDA.ipynb"] --> B["02 · Baseline\nsplit + naive vs. LogReg"]
     B --> C["03 · Model Comparison\n5-fold CV: LogReg vs RF vs XGBoost"]
     C --> D["04 · Bayesian Tuning\nOptuna, 50 trials"]
 ```
 
 | Notebook | What it does | Key takeaway |
 |---|---|---|
-| [`Classificacao_EDA.ipynb`](notebooks/Classificacao_EDA.ipynb) | Data quality, distributions, correlations — exploration only, no modeling | `mortos` leaks the target; numeric features alone barely correlate with it |
+| [`01_Classificacao_EDA.ipynb`](notebooks/01_Classificacao_EDA.ipynb) | Data quality, distributions, correlations — exploration only, no modeling | `mortos` leaks the target; numeric features alone barely correlate with it |
 | [`02_Preprocessamento_Baseline.ipynb`](notebooks/02_Preprocessamento_Baseline.ipynb) | Train/test split *before* any transformation, dummy baseline vs. Logistic Regression | `class_weight='balanced'` turns 0.00 recall into 0.72 |
 | [`03_Comparacao_Modelos.ipynb`](notebooks/03_Comparacao_Modelos.ipynb) | Stratified 5-fold CV across LogReg, RandomForest, XGBoost | RandomForest hits 93% accuracy but **F1 = 0.098** — the accuracy trap strikes again, even with class weighting |
 | [`04_Otimizacao_Optuna.ipynb`](notebooks/04_Otimizacao_Optuna.ipynb) | Bayesian hyperparameter search (TPE sampler, 50 trials, F1-optimized) | +10% F1 over default XGBoost, just from tuning |
@@ -120,7 +120,7 @@ pip install -r requirements.txt
 data/datatran2024.csv
 ```
 
-Then open the notebooks in order — `Classificacao_EDA.ipynb` → `02` → `03` → `04` — and run them top to bottom.
+Then open the notebooks in order — `01` → `02` → `03` → `04` — and run them top to bottom.
 
 ---
 
