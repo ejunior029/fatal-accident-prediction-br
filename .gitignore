@@ -20,6 +20,7 @@ models/
 # Saidas
 reports/*.png
 reports/*.html
+catboost_info/
 
 # IDE / SO
 .vscode/

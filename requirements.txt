@@ -8,3 +8,6 @@ xgboost
 catboost
 lightgbm
 optuna
+shap
+fastapi
+uvicorn

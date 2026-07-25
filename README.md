@@ -4,12 +4,16 @@
 
 That's not a bug — it's what happens when you point a naive model at real, messy, *brutally* imbalanced government data and trust the wrong metric. This project digs into 73,156 real traffic accidents reported by Brazil's Federal Highway Police (PRF) in 2024 and asks a harder question: can we actually flag the ~7% of accidents that turn fatal, before accuracy fools us into thinking we're done?
 
-If you care about imbalanced classification, data leakage traps, or watching a model go from "useless" to "actually useful" across four notebooks — keep reading.
+If you care about imbalanced classification, data leakage traps, or watching a model go from "useless" to "actually useful" across a full pipeline — keep reading.
 
 ![Python](https://img.shields.io/badge/python-3.11-blue?logo=python&logoColor=white)
 ![scikit--learn](https://img.shields.io/badge/scikit--learn-1.4-f89939?logo=scikitlearn&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0-2f6d3f)
+![CatBoost](https://img.shields.io/badge/CatBoost-1.2-ffcc00)
+![LightGBM](https://img.shields.io/badge/LightGBM-4.2-02569B)
 ![Optuna](https://img.shields.io/badge/Optuna-3.5-6db8ff)
+![SHAP](https://img.shields.io/badge/SHAP-0.44-8a2be2)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-2.2-150458?logo=pandas&logoColor=white)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -23,8 +27,8 @@ Before touching a single hyperparameter, the very first model in this project �
 |---|---|---|---|---|
 | Dummy (always predicts "no fatality") | 0.00 | 0.00 | 0.00 | — |
 | Baseline — Logistic Regression | 0.32 | 0.72 | 0.21 | 0.833 |
-| XGBoost (default hyperparameters) | 0.36 | 0.58 | 0.26 | 0.818 |
-| **XGBoost + Bayesian tuning (Optuna)** | **0.38** | 0.51 | 0.31 | **0.835** |
+| XGBoost + Optuna (default 0.5 threshold) | 0.38 | 0.51 | 0.31 | 0.835 |
+| **XGBoost + Optuna (tuned decision threshold)** | **0.39** | 0.46 | 0.35 | **0.835** |
 
 This table is the whole story of the project in one glance — and every row is a notebook.
 
@@ -48,27 +52,32 @@ The target is engineered from the original 3-class `classificacao_acidente` colu
 
 ## 🧭 Project Pipeline
 
-Four notebooks, each with one job — no notebook does EDA *and* modeling *and* tuning:
+Five notebooks plus a prediction API, each with one job — no notebook does EDA *and* modeling *and* tuning:
 
 ```mermaid
 flowchart LR
-    A["01 · EDA\n01_Classificacao_EDA.ipynb"] --> B["02 · Baseline\nsplit + naive vs. LogReg"]
-    B --> C["03 · Model Comparison\n5-fold CV: LogReg vs RF vs XGBoost"]
-    C --> D["04 · Bayesian Tuning\nOptuna, 50 trials"]
+    A["01 · EDA"] --> B["02 · Baseline\nsplit + naive vs. LogReg"]
+    B --> C["03 · Model Comparison\n5-fold CV: 5 models"]
+    C --> D["04 · Bayesian Tuning\nOptuna + threshold"]
+    D --> E["05 · Explainability\nSHAP"]
+    D --> F["src/api.py\nprediction API"]
 ```
 
 | Notebook | What it does | Key takeaway |
 |---|---|---|
 | [`01_Classificacao_EDA.ipynb`](notebooks/01_Classificacao_EDA.ipynb) | Data quality, distributions, correlations — exploration only, no modeling | `mortos` leaks the target; numeric features alone barely correlate with it |
 | [`02_Preprocessamento_Baseline.ipynb`](notebooks/02_Preprocessamento_Baseline.ipynb) | Train/test split *before* any transformation, dummy baseline vs. Logistic Regression | `class_weight='balanced'` turns 0.00 recall into 0.72 |
-| [`03_Comparacao_Modelos.ipynb`](notebooks/03_Comparacao_Modelos.ipynb) | Stratified 5-fold CV across LogReg, RandomForest, XGBoost | RandomForest hits 93% accuracy but **F1 = 0.098** — the accuracy trap strikes again, even with class weighting |
-| [`04_Otimizacao_Optuna.ipynb`](notebooks/04_Otimizacao_Optuna.ipynb) | Bayesian hyperparameter search (TPE sampler, 50 trials, F1-optimized) | +10% F1 over default XGBoost, just from tuning |
+| [`03_Comparacao_Modelos.ipynb`](notebooks/03_Comparacao_Modelos.ipynb) | Stratified 5-fold CV across LogReg, RandomForest, XGBoost, CatBoost, LightGBM | RandomForest hits 93% accuracy but **F1 = 0.098** — the accuracy trap strikes again, even with class weighting |
+| [`04_Otimizacao_Optuna.ipynb`](notebooks/04_Otimizacao_Optuna.ipynb) | Bayesian hyperparameter search (TPE sampler, 50 trials, F1-optimized) + decision-threshold tuning | +10% F1 from tuning, another ~4% from picking the right threshold instead of the default 0.5 |
+| [`05_Explicabilidade_SHAP.ipynb`](notebooks/05_Explicabilidade_SHAP.ipynb) | Global + local feature importance with SHAP | Accident type (head-on collisions, pedestrian hits) and party count dominate — and a subtle bug trap: densifying the sparse one-hot matrix silently corrupts predictions |
 
-Shared data loading, leakage-safe feature selection and preprocessing live in [`src/data.py`](src/data.py) so all four notebooks stay consistent and DRY.
+Shared data loading, leakage-safe feature selection and preprocessing live in [`src/data.py`](src/data.py) so every notebook stays consistent and DRY.
 
 ---
 
 ## 🏆 Results & What They Mean
+
+Five models were compared with stratified 5-fold CV: **LogReg, RandomForest, XGBoost, CatBoost and LightGBM**. The three gradient-boosting models land close together on F1 (0.349–0.355); CatBoost and LightGBM actually edge out XGBoost on ROC-AUC (0.830 / 0.829 vs. 0.809), but XGBoost wins on F1 — the metric this project optimizes for — so it moves on to tuning.
 
 The tuned XGBoost model — found by Optuna after 50 trials optimizing F1 via cross-validation — settles on:
 
@@ -77,9 +86,11 @@ n_estimators=600, max_depth=10, learning_rate=0.053,
 subsample=0.63, colsample_bytree=0.52, min_child_weight=5
 ```
 
-It reaches the best F1 (0.38) *and* the best ROC-AUC (0.835) of the whole pipeline — but notice its recall (0.51) is actually the **lowest** of the three real models. Since ROC-AUC (threshold-independent) is its best score too, this points to a model that ranks accidents better overall, just evaluated at a default 0.5 threshold that isn't necessarily the right operating point. Tuning that decision threshold — not just the model — is next on the list (see [Roadmap](#️-roadmap)).
+It reaches the best F1 (0.38) *and* the best ROC-AUC (0.835) of the whole pipeline at the default 0.5 threshold — but notice its recall (0.51) is actually the **lowest** of the models so far. ROC-AUC (threshold-independent) being its best score too points to a model that ranks accidents better overall, just evaluated at a threshold that isn't the right operating point. Sweeping the precision-recall curve and picking the F1-optimal threshold (~0.585 instead of 0.5) pushes F1 to **~0.39** — precision improves, recall drops further, because F1-optimal treats both errors as equally costly. That's not necessarily what you want in this domain (missing a fatal accident vs. a false alarm are not equally bad), which is exactly why the notebook shows the full precision-recall trade-off table instead of just the "optimal" point.
 
-Every trained model is saved to `models/*.joblib`; every chart (confusion matrices, ROC curves, CV comparisons, Optuna's optimization history and parameter importances) is saved to `reports/*.png` when you run the notebooks yourself.
+SHAP confirms the model is picking up real signal, not noise: accident type (head-on collisions and pedestrian strikes push hardest toward "fatal"; rear-end collisions push the other way), party count (`pessoas`, `veiculos`), location, and time of day (early morning is riskier than daytime) dominate the feature importance ranking — all consistent with real-world road safety knowledge.
+
+Every trained model is saved to `models/*.joblib`, the tuned decision threshold to `models/limiar_otimo.json`; every chart (confusion matrices, ROC and precision-recall curves, CV comparisons, Optuna's optimization history, SHAP plots) is saved to `reports/*.png` when you run the notebooks yourself.
 
 ---
 
@@ -87,9 +98,9 @@ Every trained model is saved to `models/*.joblib`; every chart (confusion matric
 
 ```
 ├── data/         raw dataset (gitignored — see setup below)
-├── notebooks/    the 4-notebook pipeline described above
-├── src/          shared, reusable code (data loading, preprocessing)
-├── models/       trained models (.joblib, gitignored)
+├── notebooks/    the 5-notebook pipeline described above
+├── src/          shared, reusable code (data loading, preprocessing, prediction API)
+├── models/       trained models + tuned threshold (.joblib / .json, gitignored)
 ├── reports/      generated charts (.png, gitignored)
 └── requirements.txt
 ```
@@ -120,16 +131,42 @@ pip install -r requirements.txt
 data/datatran2024.csv
 ```
 
-Then open the notebooks in order — `01` → `02` → `03` → `04` — and run them top to bottom.
+Then open the notebooks in order — `01` → `02` → `03` → `04` → `05` — and run them top to bottom.
+
+**Serve the final model** — once `04_Otimizacao_Optuna.ipynb` has run (so `models/modelo_final_optuna.joblib` and `models/limiar_otimo.json` exist), start the prediction API:
+
+```bash
+uvicorn src.api:app --reload
+```
+
+Then open `http://127.0.0.1:8000/docs` for interactive Swagger docs, or call it directly:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dia_semana": "segunda-feira", "uf": "SP", "br": 101,
+    "causa_acidente": "Velocidade Incompatível", "tipo_acidente": "Colisão traseira",
+    "fase_dia": "Plena Noite", "sentido_via": "Crescente", "condicao_metereologica": "Céu Claro",
+    "tipo_pista": "Simples", "tracado_via": "Reta", "uso_solo": "Rural",
+    "pessoas": 2, "veiculos": 2, "latitude": -15.7801, "longitude": -47.9292, "hora": 14
+  }'
+```
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Tune the decision threshold instead of defaulting to 0.5 (precision-recall trade-off analysis)
-- [ ] Try CatBoost and LightGBM (already in `requirements.txt`, not yet in the comparison notebook)
-- [ ] SHAP values for feature-level explainability
-- [ ] Package the final model behind a minimal prediction API
+- [x] Tune the decision threshold instead of defaulting to 0.5 (precision-recall trade-off analysis)
+- [x] Try CatBoost and LightGBM in the comparison notebook
+- [x] SHAP values for feature-level explainability
+- [x] Package the final model behind a minimal prediction API
+
+**What's next:**
+- [ ] Containerize the API (Dockerfile) for easier deployment
+- [ ] Add automated tests for `src/data.py` and `src/api.py`
+- [ ] Try resampling strategies (SMOTE, undersampling) as an alternative to `class_weight='balanced'`
+- [ ] Model calibration (`CalibratedClassifierCV`) — SHAP and threshold tuning both assume the predicted probabilities are meaningful, worth verifying
 
 ---
 
