@@ -1,0 +1,13 @@
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+data/
+notebooks/
+reports/
+catboost_info/
+.ipynb_checkpoints/
+.claude/
