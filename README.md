@@ -179,7 +179,7 @@ Two things worth knowing about [`Dockerfile`](Dockerfile) if you're reading it a
 
 ```bash
 pip install -r requirements-dev.txt
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 Every push to `main` runs this automatically via [GitHub Actions](.github/workflows/ci.yml), alongside a lint check (`ruff`) and a check that the Dockerfile still builds — the badge at the top of this README reflects the latest run.
