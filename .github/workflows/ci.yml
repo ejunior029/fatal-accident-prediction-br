@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar ruff
+        run: pip install ruff
+
+      - name: Checar estilo do codigo
+        run: ruff check src/ tests/
+
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias (API + testes)
+        run: pip install -r requirements-dev.txt
+
+      - name: Rodar testes automatizados
+        run: pytest tests/ -v
+
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias da API
+        run: pip install -r requirements-api.txt
+
+      # models/*.joblib nao e versionado no git (e o modelo real de producao).
+      # Este passo gera um modelo minusculo, treinado na amostra de teste, so
+      # para o Dockerfile ter o que copiar. O objetivo deste job e garantir
+      # que o Dockerfile + requirements-api.txt continuam construindo uma
+      # imagem valida (pegou, ao vivo, um problema real de versao de
+      # dependencia — ver historico do Dockerfile) — nao validar as
+      # previsoes do modelo real.
+      - name: Gerar modelo placeholder para o build
+        run: python scripts/gerar_modelo_placeholder.py
+
+      - name: Build da imagem Docker
+        run: docker build -t fatal-accident-api .

@@ -59,6 +59,7 @@ def cliente_api(tmp_path_factory):
     os.environ["LIMIAR_PATH"] = str(caminho_limiar)
 
     from fastapi.testclient import TestClient
+
     from src.api import app  # importado so agora, depois das variaveis de ambiente
 
     return TestClient(app)
