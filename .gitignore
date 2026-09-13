@@ -16,6 +16,11 @@ models/
 *.parquet
 *.pkl
 *.joblib
+# Excecao: fixture pequena usada pelos testes, precisa ser versionada
+!tests/fixtures/*.csv
+
+# Cache de teste
+.pytest_cache/
 
 # Saidas
 reports/*.png

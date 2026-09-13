@@ -1,5 +1,6 @@
 """API minima de predicao: risco de vitima fatal em acidentes de transito (PRF)."""
 import json
+import os
 from pathlib import Path
 
 import joblib
@@ -11,8 +12,12 @@ from pydantic import BaseModel, Field
 # .parent sobe uma pasta (para src/), .parent de novo sobe outra (para a raiz do projeto).
 # Assim os caminhos abaixo funcionam independente de onde o comando "uvicorn" for executado.
 RAIZ = Path(__file__).resolve().parent.parent
-MODELO_PATH = RAIZ / "models" / "modelo_final_optuna.joblib"
-LIMIAR_PATH = RAIZ / "models" / "limiar_otimo.json"
+
+# As variaveis de ambiente permitem apontar para um modelo diferente sem
+# mexer no codigo — usado pelos testes (tests/conftest.py), que treinam um
+# modelo pequeno e descartavel em vez de depender do modelo real de ~5MB.
+MODELO_PATH = Path(os.environ.get("MODELO_PATH", RAIZ / "models" / "modelo_final_optuna.joblib"))
+LIMIAR_PATH = Path(os.environ.get("LIMIAR_PATH", RAIZ / "models" / "limiar_otimo.json"))
 
 # FastAPI() cria a aplicacao web em si. title/description/version aparecem
 # automaticamente na pagina de documentacao (/docs) gerada pelo FastAPI.

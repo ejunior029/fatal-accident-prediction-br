@@ -1,0 +1,11 @@
+id;data_inversa;dia_semana;horario;uf;br;km;municipio;causa_acidente;tipo_acidente;classificacao_acidente;fase_dia;sentido_via;condicao_metereologica;tipo_pista;tracado_via;uso_solo;pessoas;mortos;feridos_leves;feridos_graves;ilesos;ignorados;feridos;veiculos;latitude;longitude;regional;delegacia;uop
+1;2024-01-01;segunda-feira;03:10:00;SP;101;10;Sao Paulo;Velocidade Incompatível;Colisão frontal;Com Vítimas Fatais;Plena Noite;Crescente;Céu Claro;Simples;Reta;Rural;4;2;1;1;0;0;2;2;-23.55;-46.63;R1;D1;U1
+2;2024-01-02;terça-feira;02:45:00;MG;40;55;Belo Horizonte;Ingestão de álcool;Saída de leito carroçável;Com Vítimas Fatais;Plena Noite;Decrescente;Chuva;Simples;Curva;Rural;3;1;0;1;1;0;1;1;-19.92;-43.94;R2;D2;U2
+3;2024-01-03;quarta-feira;04:30:00;BA;116;80;Salvador;Ausência de reação do condutor;Colisão frontal;Com Vítimas Fatais;Amanhecer;Crescente;Nublado;Dupla;Reta;Rural;5;3;1;0;1;0;1;2;-12.97;-38.5;R3;D3;U3
+4;2024-01-04;quinta-feira;14:00:00;PR;277;120;Curitiba;Não guardar distância de segurança;Colisão traseira;Com Vítimas Feridas;Pleno dia;Crescente;Céu Claro;Dupla;Reta;Urbano;2;0;1;0;1;0;1;2;-25.43;-49.27;R4;D4;U4
+5;2024-01-05;sexta-feira;16:20:00;RS;290;33;Porto Alegre;Defeito mecânico em veículo;Colisão lateral;Com Vítimas Feridas;Pleno dia;Decrescente;Nublado;Simples;Curva;Urbano;3;0;2;0;1;0;2;2;-30.03;-51.23;R5;D5;U5
+6;2024-01-06;sábado;09:15:00;SC;101;200;Florianopolis;Velocidade Incompatível;Tombamento;Com Vítimas Feridas;Pleno dia;Crescente;Chuva;Simples;Reta;Rural;2;0;1;1;0;0;2;1;-27.6;-48.55;R6;D6;U6
+7;2024-01-07;domingo;11:00:00;GO;60;15;Goiania;Animais na Pista;Colisão com objeto fixo;Sem Vítimas;Pleno dia;Crescente;Céu Claro;Simples;Reta;Rural;1;0;0;0;1;0;0;1;-16.68;-49.25;R7;D7;U7
+8;2024-01-08;segunda-feira;18:40:00;SP;116;300;Sao Paulo;Chuva;Saída de leito carroçável;Sem Vítimas;Anoitecer;Decrescente;Chuva;Dupla;Curva;Urbano;2;0;0;0;2;0;0;1;-23.6;-46.7;R8;D8;U8
+9;2024-01-09;terça-feira;07:30:00;MG;381;45;Uberlandia;Ultrapassagem Indevida;Colisão lateral;Sem Vítimas;Pleno dia;Crescente;Nublado;Simples;Reta;Rural;2;0;0;0;2;0;0;2;-18.91;-48.28;R9;D9;U9
+10;2024-01-10;quarta-feira;20:05:00;RJ;101;60;Rio de Janeiro;Falta de Atenção à Condução;Colisão traseira;Sem Vítimas;Plena Noite;Crescente;Céu Claro;Dupla;Reta;Urbano;1;0;0;0;1;0;0;1;-22.9;-43.2;R10;D10;U10
